@@ -1,3 +1,5 @@
+package server;
+
 import java.io.BufferedOutputStream;
 
 public interface Handler {

@@ -1,6 +1,6 @@
+import server.Server;
+
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Main {
 
@@ -9,18 +9,13 @@ public class Main {
 
         // добавление хендлеров (обработчиков)
         server.addHandler("GET", "/messages", (request, responseStream) -> {
-            final var filePath = Path.of(".", "public", request.getUrl());
             try {
-                final var mimeType = Files.probeContentType(filePath);
-                final var length = Files.size(filePath);
                 responseStream.write((
                         "HTTP/1.1 200 OK\r\n" +
-                                "Content-Type: " + mimeType + "\r\n" +
-                                "Content-Length: " + length + "\r\n" +
+                                "Content-Length: 0\r\n" +
                                 "Connection: close\r\n" +
                                 "\r\n"
                 ).getBytes());
-                Files.copy(filePath, responseStream);
                 responseStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -28,14 +23,23 @@ public class Main {
         });
 
         server.addHandler("POST", "/messages", ((request, responseStream) -> {
+            int contentLength = 0;
+            if (request.getContentLength() != 0) {
+                contentLength = request.getContentLength();
+            }
             try {
                 responseStream.write((
-                        "kek"
+                        "HTTP/1.1 200 OK\r\n" +
+                                "Content-Length: " + contentLength + "\r\n" +
+                                "Connection: close\r\n" +
+                                "\r\n"
                 ).getBytes());
+                responseStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }));
+
         server.listen(9999);
     }
 }
